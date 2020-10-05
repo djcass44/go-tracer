@@ -25,6 +25,12 @@ import (
 	"net/http"
 )
 
+type myHandler struct{}
+
+func (mh myHandler) ServeHTTP(w http.ResponseWriter, _ *http.Request) {
+	_, _ = w.Write([]byte("Hello World!"))
+}
+
 func main() {
 	log.SetLevel(log.DebugLevel)
 
@@ -37,6 +43,7 @@ func main() {
 		// write the request id into the response
 		_, _ = w.Write([]byte(tracer.GetRequestId(r)))
 	}))
+	http.Handle("/something", tracer.Tracer(myHandler{}))
 	// start http server
 	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", *port), nil))
 }
