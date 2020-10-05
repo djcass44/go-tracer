@@ -24,17 +24,19 @@ import (
 	"testing"
 )
 
-func TestMiddleware(t *testing.T) {
-	handler := func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Add("X-Request-ID", r.Context().Value("id").(string))
-	}
+type handler struct{}
 
+func (h *handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	w.Header().Add("X-Request-ID", r.Context().Value("id").(string))
+}
+
+func TestMiddleware(t *testing.T) {
 	req := httptest.NewRequest(http.MethodGet, "http://example.org/test", nil)
 	req.Header.Add("X-Request-ID", "test-request-id")
 	w := httptest.NewRecorder()
-	mware := Middleware{Next: handler}
 
-	mware.ServeHTTP(w, req)
+	h := Tracer(&handler{})
+	h.ServeHTTP(w, req)
 
 	resp := w.Result()
 

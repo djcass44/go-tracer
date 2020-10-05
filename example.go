@@ -15,24 +15,28 @@
  *
  */
 
-package tracer
+package main
 
-import "net/http"
+import (
+	"flag"
+	"fmt"
+	"github.com/djcass44/go-tracer/tracer"
+	log "github.com/sirupsen/logrus"
+	"net/http"
+)
 
-// Tracer provides an HTTP handler for injecting trace information
-func Tracer(h http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// inject the requestId to the context
-		r = SetRequestId(r)
-		h.ServeHTTP(w, r)
-	})
-}
+func main() {
+	log.SetLevel(log.DebugLevel)
 
-// NewFunc provides an HTTP HandlerFunc for injecting trace information
-func NewFunc(f func(w http.ResponseWriter, r *http.Request)) func(http.ResponseWriter, *http.Request) {
-	return func(w http.ResponseWriter, r *http.Request) {
-		// inject the requestId to the context
-		r = SetRequestId(r)
-		f(w, r)
-	}
+	port := flag.Int("port", 8080, "port to run on")
+
+	flag.Parse()
+
+	// setup http handlers
+	http.HandleFunc("/api/v1/my-resource", tracer.NewFunc(func(w http.ResponseWriter, r *http.Request) {
+		// write the request id into the response
+		_, _ = w.Write([]byte(tracer.GetRequestId(r)))
+	}))
+	// start http server
+	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", *port), nil))
 }

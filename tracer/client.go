@@ -18,7 +18,6 @@
 package tracer
 
 import (
-	"fmt"
 	log "github.com/sirupsen/logrus"
 	"net/http"
 )
@@ -29,11 +28,9 @@ type traceableRoundTripper struct {
 
 func (rt *traceableRoundTripper) RoundTrip(r *http.Request) (res *http.Response, err error) {
 	// inject the request id header
-	if rawId := r.Context().Value("id"); rawId != nil {
-		id := fmt.Sprintf("%v", rawId) // safe conversion to string
-		if id != "" {
-			r.Header.Add("X-Request-ID", id)
-		}
+	id := GetRequestId(r)
+	if id != "" {
+		r.Header.Add("X-Request-ID", id)
 	}
 	res, err = rt.Proxied.RoundTrip(r)
 	return

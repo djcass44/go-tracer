@@ -19,6 +19,7 @@ package tracer
 
 import (
 	"context"
+	"fmt"
 	"github.com/google/uuid"
 	log "github.com/sirupsen/logrus"
 	"net/http"
@@ -34,4 +35,14 @@ func SetRequestId(r *http.Request) *http.Request {
 	}
 	// update the request context
 	return r.WithContext(context.WithValue(r.Context(), "id", id))
+}
+
+// GetRequestId extracts the request ID from the current request context
+func GetRequestId(r *http.Request) string {
+	id := r.Context().Value("id")
+	if id == nil {
+		return ""
+	}
+	// safely convert the id into a string
+	return fmt.Sprintf("%v", id)
 }
