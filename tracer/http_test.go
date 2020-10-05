@@ -18,6 +18,7 @@
 package tracer
 
 import (
+	"context"
 	"github.com/stretchr/testify/assert"
 	"net/http"
 	"testing"
@@ -39,4 +40,17 @@ func TestSetRequestIdFromHeader(t *testing.T) {
 
 	assert.Empty(t, request.Context().Value("id"))
 	assert.Equal(t, "my-request-id", newRequest.Context().Value("id"))
+}
+
+func TestGetRequestIdNoContext(t *testing.T) {
+	request := &http.Request{}
+
+	assert.Empty(t, GetRequestId(request))
+}
+
+func TestGetRequestId(t *testing.T) {
+	request := &http.Request{}
+	r := request.WithContext(context.WithValue(context.TODO(), "id", "test"))
+
+	assert.Equal(t, "test", GetRequestId(r))
 }

@@ -42,3 +42,32 @@ func TestMiddleware(t *testing.T) {
 
 	assert.EqualValues(t, "test-request-id", resp.Header.Get("X-Request-ID"))
 }
+
+func TestNewFunc(t *testing.T) {
+	handler := func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Add("X-Request-ID", r.Context().Value("id").(string))
+	}
+	req := httptest.NewRequest(http.MethodGet, "http://example.org/test", nil)
+	w := httptest.NewRecorder()
+
+	NewFunc(handler)(w, req)
+
+	resp := w.Result()
+
+	assert.NotEmpty(t, resp.Header.Get("X-Request-ID"))
+}
+
+func TestNewFuncWithHeader(t *testing.T) {
+	handler := func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Add("X-Request-ID", r.Context().Value("id").(string))
+	}
+	req := httptest.NewRequest(http.MethodGet, "http://example.org/test", nil)
+	req.Header.Add("X-Request-ID", "test")
+	w := httptest.NewRecorder()
+
+	NewFunc(handler)(w, req)
+
+	resp := w.Result()
+
+	assert.Equal(t, "test", resp.Header.Get("X-Request-ID"))
+}
