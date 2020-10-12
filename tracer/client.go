@@ -22,6 +22,8 @@ import (
 	"net/http"
 )
 
+var DefaultRequestHeader = "X-Request-ID"
+
 type traceableRoundTripper struct {
 	Proxied http.RoundTripper
 }
@@ -30,7 +32,7 @@ func (rt *traceableRoundTripper) RoundTrip(r *http.Request) (res *http.Response,
 	// inject the request id header
 	id := GetRequestId(r)
 	if id != "" {
-		r.Header.Add("X-Request-ID", id)
+		r.Header.Add(DefaultRequestHeader, id)
 	}
 	res, err = rt.Proxied.RoundTrip(r)
 	return
