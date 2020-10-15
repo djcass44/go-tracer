@@ -32,7 +32,7 @@ func (mh myHandler) ServeHTTP(w http.ResponseWriter, _ *http.Request) {
 	_, _ = w.Write([]byte("Hello World!"))
 }
 // later on
-http.Handle("/something", tracer.Tracer(myHandler{}))
+http.Handle("/something", tracer.NewHandler(myHandler{}))
 ```
 
 **Accessing the RequestID**

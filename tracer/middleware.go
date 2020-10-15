@@ -20,7 +20,7 @@ package tracer
 import "net/http"
 
 // Tracer provides an HTTP handler for injecting trace information
-func Tracer(h http.Handler) http.Handler {
+func NewHandler(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// inject the requestId to the context
 		r = SetRequestId(r)

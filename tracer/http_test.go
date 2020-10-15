@@ -54,3 +54,9 @@ func TestGetRequestId(t *testing.T) {
 
 	assert.Equal(t, "test", GetRequestId(r))
 }
+
+func TestGetContextId(t *testing.T) {
+	ctx := context.WithValue(context.Background(), "id", "test")
+
+	assert.EqualValues(t, "test", GetContextId(ctx))
+}

@@ -41,6 +41,12 @@ func (rt *traceableRoundTripper) RoundTrip(r *http.Request) (res *http.Response,
 // Apply modifies an http client's transport to inject the X-Request-ID header
 func Apply(c *http.Client) {
 	log.Debug("injecting request tracing into http client")
-	rt := traceableRoundTripper{http.DefaultTransport}
+	var transport http.RoundTripper
+	if c.Transport == nil {
+		transport = http.DefaultTransport
+	} else {
+		transport = c.Transport
+	}
+	rt := traceableRoundTripper{transport}
 	c.Transport = &rt
 }
