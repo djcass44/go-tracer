@@ -35,7 +35,7 @@ func TestMiddleware(t *testing.T) {
 	req.Header.Add("X-Request-ID", "test-request-id")
 	w := httptest.NewRecorder()
 
-	h := Tracer(&handler{})
+	h := NewHandler(&handler{})
 	h.ServeHTTP(w, req)
 
 	resp := w.Result()

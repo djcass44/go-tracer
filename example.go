@@ -43,7 +43,7 @@ func main() {
 		// write the request id into the response
 		_, _ = w.Write([]byte(tracer.GetRequestId(r)))
 	}))
-	http.Handle("/something", tracer.Tracer(myHandler{}))
+	http.Handle("/something", tracer.NewHandler(myHandler{}))
 	// start http server
 	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", *port), nil))
 }
