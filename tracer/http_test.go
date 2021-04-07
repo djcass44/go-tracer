@@ -15,10 +15,11 @@
  *
  */
 
-package tracer
+package tracer_test
 
 import (
 	"context"
+	"github.com/djcass44/go-tracer/tracer"
 	"github.com/stretchr/testify/assert"
 	"net/http"
 	"testing"
@@ -26,37 +27,37 @@ import (
 
 func TestSetRequestId(t *testing.T) {
 	request := &http.Request{}
-	newRequest := SetRequestId(request)
+	newRequest := tracer.SetRequestId(request)
 
-	assert.Empty(t, request.Context().Value("id"))
-	assert.NotEmpty(t, newRequest.Context().Value("id"))
+	assert.Empty(t, request.Context().Value(tracer.ContextKeyID))
+	assert.NotEmpty(t, newRequest.Context().Value(tracer.ContextKeyID))
 }
 
 func TestSetRequestIdFromHeader(t *testing.T) {
 	headers := http.Header{}
 	headers.Add("X-Request-ID", "my-request-id")
 	request := &http.Request{Header: headers}
-	newRequest := SetRequestId(request)
+	newRequest := tracer.SetRequestId(request)
 
-	assert.Empty(t, request.Context().Value("id"))
-	assert.Equal(t, "my-request-id", newRequest.Context().Value("id"))
+	assert.Empty(t, request.Context().Value(tracer.ContextKeyID))
+	assert.Equal(t, "my-request-id", newRequest.Context().Value(tracer.ContextKeyID))
 }
 
 func TestGetRequestIdNoContext(t *testing.T) {
 	request := &http.Request{}
 
-	assert.Empty(t, GetRequestId(request))
+	assert.Empty(t, tracer.GetRequestId(request))
 }
 
 func TestGetRequestId(t *testing.T) {
 	request := &http.Request{}
-	r := request.WithContext(context.WithValue(context.TODO(), "id", "test"))
+	r := request.WithContext(context.WithValue(context.TODO(), tracer.ContextKeyID, "test"))
 
-	assert.Equal(t, "test", GetRequestId(r))
+	assert.Equal(t, "test", tracer.GetRequestId(r))
 }
 
 func TestGetContextId(t *testing.T) {
-	ctx := context.WithValue(context.Background(), "id", "test")
+	ctx := context.WithValue(context.Background(), tracer.ContextKeyID, "test")
 
-	assert.EqualValues(t, "test", GetContextId(ctx))
+	assert.EqualValues(t, "test", tracer.GetContextId(ctx))
 }

@@ -25,7 +25,13 @@ import (
 	"net/http"
 )
 
-var DefaultContextKey = "id"
+type ContextKey int
+
+const (
+	// Deprecated: replaced by concrete type ContextKey
+	DefaultContextKey            = "id"
+	ContextKeyID      ContextKey = iota
+)
 
 // SetRequestId returns a shallow copy of the origin request, with a request ID created or extracted from the X-Request-ID header
 func SetRequestId(r *http.Request) *http.Request {
@@ -33,10 +39,12 @@ func SetRequestId(r *http.Request) *http.Request {
 	// if we didn't get an id, create one
 	if id == "" {
 		id = uuid.New().String()
-		log.WithField(DefaultContextKey, id).Debugf("failed to locate existing request ID, generating a new one...")
+		log.WithField("id", id).Debugf("failed to locate existing request ID, generating a new one...")
 	}
+	// store the legacy value for compat
+	ctx := context.WithValue(r.Context(), DefaultContextKey, id)
 	// update the request context
-	return r.WithContext(context.WithValue(r.Context(), DefaultContextKey, id))
+	return r.WithContext(context.WithValue(ctx, ContextKeyID, id))
 }
 
 // GetRequestId extracts the request ID from the current request context
@@ -46,7 +54,10 @@ func GetRequestId(r *http.Request) string {
 
 // GetContextId extracts the request ID from the given context
 func GetContextId(ctx context.Context) string {
-	id := ctx.Value(DefaultContextKey)
+	id := ctx.Value(ContextKeyID)
+	if id == nil {
+		id = ctx.Value(DefaultContextKey)
+	}
 	if id == nil {
 		return ""
 	}

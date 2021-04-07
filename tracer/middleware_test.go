@@ -15,9 +15,10 @@
  *
  */
 
-package tracer
+package tracer_test
 
 import (
+	"github.com/djcass44/go-tracer/tracer"
 	"github.com/stretchr/testify/assert"
 	"net/http"
 	"net/http/httptest"
@@ -35,7 +36,7 @@ func TestMiddleware(t *testing.T) {
 	req.Header.Add("X-Request-ID", "test-request-id")
 	w := httptest.NewRecorder()
 
-	h := NewHandler(&handler{})
+	h := tracer.NewHandler(&handler{})
 	h.ServeHTTP(w, req)
 
 	resp := w.Result()
@@ -45,12 +46,12 @@ func TestMiddleware(t *testing.T) {
 
 func TestNewFunc(t *testing.T) {
 	handler := func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Add("X-Request-ID", r.Context().Value("id").(string))
+		w.Header().Add("X-Request-ID", r.Context().Value(tracer.ContextKeyID).(string))
 	}
 	req := httptest.NewRequest(http.MethodGet, "http://example.org/test", nil)
 	w := httptest.NewRecorder()
 
-	NewFunc(handler)(w, req)
+	tracer.NewFunc(handler)(w, req)
 
 	resp := w.Result()
 
@@ -59,13 +60,13 @@ func TestNewFunc(t *testing.T) {
 
 func TestNewFuncWithHeader(t *testing.T) {
 	handler := func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Add("X-Request-ID", r.Context().Value("id").(string))
+		w.Header().Add("X-Request-ID", r.Context().Value(tracer.ContextKeyID).(string))
 	}
 	req := httptest.NewRequest(http.MethodGet, "http://example.org/test", nil)
 	req.Header.Add("X-Request-ID", "test")
 	w := httptest.NewRecorder()
 
-	NewFunc(handler)(w, req)
+	tracer.NewFunc(handler)(w, req)
 
 	resp := w.Result()
 

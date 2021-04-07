@@ -5,7 +5,7 @@ This library provides a method for simplifying request tracing and correlation b
 #### What it does
 
 * Extracts the `X-Request-ID` value or creates a new ID from a UUIDv4
-* Adds an `id` entry to the `http.Request` context
+* Adds an entry to the `http.Request` context
 * Injects the `X-Request-ID` header to outgoing HTTP requests
 
 This allows you to 'follow' requests as they move between various services as they will all have the same ID.
@@ -46,7 +46,7 @@ requestId := tracer.GetRequestId(request)
 
 Direct:
 ```go
-requestId := request.Context().Value("id").(string)
+requestId := request.Context().Value(tracer.ContextKeyID).(string)
 ```
 
 **Enabling outgoing RequestID injection**
